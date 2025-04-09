@@ -32,7 +32,7 @@ func (m *UserModel) Post(name, email, password string) error {
 	stmt := `INSERT INTO users (name, email, hashed_password, created_at) VALUES ($1,$2,$3, CURRENT_TIMESTAMP)`
 	_, err = m.DB.Exec(stmt, name, email, string(hashedPassword))
 	if err != nil {
-		log.Printf("Failed to execute the statement: %v", err)
+		log.Printf("Failed to execute the statement, %v", err)
 		return err
 	}
 	return nil
