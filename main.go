@@ -6,11 +6,13 @@ import (
 	"flag"
 	"log"
 	"net/http"
+
+	_ "github.com/jackc/pgx/stdlib"
 )
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	dsn := flag.String("dsn", "postgres://grav:grav123:4000/gravitum_users", "postgresql source name")
+	dsn := flag.String("dsn", "postgres://postgres:admin@localhost:5432/gravitum_users", "postgresql source name")
 
 	flag.Parse()
 
@@ -35,7 +37,7 @@ func main() {
 }
 
 func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("postgresql", dsn)
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
 	}
