@@ -4,11 +4,17 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"flag"
+	"gravitum_rest_api/users_db"
 	"log"
 	"net/http"
 
 	_ "github.com/jackc/pgx/stdlib"
 )
+
+type userInfo struct {
+	user      users_db.User
+	userModel users_db.UserModel
+}
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")

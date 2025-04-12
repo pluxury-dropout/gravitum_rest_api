@@ -1,4 +1,4 @@
-package usersdb
+package users_db
 
 import (
 	"database/sql"
@@ -24,7 +24,7 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m *UserModel) Post(name, email, password string) error {
+func (m *UserModel) CreateUser(name, email, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (m *UserModel) Post(name, email, password string) error {
 
 }
 
-func (m *UserModel) Get(id int) (*User, error) {
+func (m *UserModel) GetUser(id int) (*User, error) {
 	stmt := `SELECT id, name, email, created_at, updated_at FROM users where id=$1`
 	row := m.DB.QueryRow(stmt, id)
 
@@ -56,7 +56,7 @@ func (m *UserModel) Get(id int) (*User, error) {
 	return user_info, nil
 }
 
-func (m *UserModel) PUT(id int, new_name, new_email string) error {
+func (m *UserModel) UpdateUser(id int, new_name, new_email string) error {
 	stmt := `UPDATE users SET name=$1, email=$2, updated_at=CURRENT_TIMESTAMP WHERE id=$3`
 	_, err := m.DB.Exec(stmt, new_name, new_email, id)
 	if err != nil {
@@ -64,4 +64,10 @@ func (m *UserModel) PUT(id int, new_name, new_email string) error {
 		return err
 	}
 	return nil
+}
+
+type UsersInterface interface {
+	Post(name, email, password string) error
+	Get(id int) (*User, error)
+	Put(id int, new_name, new_email string) error
 }
