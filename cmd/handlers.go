@@ -31,7 +31,7 @@ type GetUserForm struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (u *userInfo) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (u *UserInfo) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -46,7 +46,7 @@ func (u *userInfo) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Name, email and password cannot be blank", http.StatusBadRequest)
 		return
 	}
-	if err := u.userModel.CreateUser(UserForm.Name, UserForm.Email, UserForm.Password); err != nil {
+	if err := u.UsersModelInterface.CreateUser(UserForm.Name, UserForm.Email, UserForm.Password); err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
@@ -57,7 +57,7 @@ func (u *userInfo) CreateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (u *userInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (u *UserInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -76,7 +76,7 @@ func (u *userInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Nothing to update", http.StatusBadRequest)
 		return
 	}
-	if err := u.userModel.UpdateUser(updateForm.ID, updateForm.NewName, updateForm.NewEmail); err != nil {
+	if err := u.UsersModelInterface.UpdateUser(updateForm.ID, updateForm.NewName, updateForm.NewEmail); err != nil {
 		if err.Error() == "User not found" {
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
@@ -90,7 +90,7 @@ func (u *userInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedUser, err := u.userModel.GetUser(updateForm.ID)
+	updatedUser, err := u.UsersModelInterface.GetUser(updateForm.ID)
 	if err != nil {
 		http.Error(w, "Failed to fetch updated user data", http.StatusInternalServerError)
 		return
@@ -108,7 +108,7 @@ func (u *userInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (u *userInfo) GetUser(w http.ResponseWriter, r *http.Request) {
+func (u *UserInfo) GetUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -125,7 +125,7 @@ func (u *userInfo) GetUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid user ID format", http.StatusBadRequest)
 		return
 	}
-	user, err := u.userModel.GetUser(id)
+	user, err := u.UsersModelInterface.GetUser(id)
 	if err != nil {
 		if err.Error() == "User not found" {
 			http.Error(w, "User not found", http.StatusNotFound)

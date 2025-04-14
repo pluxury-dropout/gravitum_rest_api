@@ -11,9 +11,9 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 )
 
-type userInfo struct {
-	user      users_db.User
-	userModel users_db.UserModel
+type UserInfo struct {
+	User                users_db.User
+	UsersModelInterface users_db.UserModel
 }
 
 func main() {
@@ -27,6 +27,11 @@ func main() {
 		log.Fatalf("Failed to open DB, %v", err)
 	}
 	defer db.Close()
+
+	userModel := &users_db.UserModel{DB: db}
+	userHandler := &UserInfo{UsersModelInterface: *userModel}
+
+	handler := SetupRoutes(userHandler)
 
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},

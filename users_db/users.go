@@ -66,8 +66,8 @@ func (m *UserModel) UpdateUser(id int, new_name, new_email string) error {
 	return nil
 }
 
-type UsersInterface interface {
-	Post(name, email, password string) error
-	Get(id int) (*User, error)
-	Put(id int, new_name, new_email string) error
+type UsersModelInterface interface {
+	CreateUser(name, email, password string) error
+	GetUser(id int) (*User, error)
+	UpdateUser(id int, new_name, new_email string) error
 }
