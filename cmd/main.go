@@ -12,8 +12,7 @@ import (
 )
 
 type UserInfo struct {
-	User                users_db.User
-	UsersModelInterface users_db.UserModel
+	UsersModel users_db.UsersModelInterface
 }
 
 func main() {
@@ -29,9 +28,7 @@ func main() {
 	defer db.Close()
 
 	userModel := &users_db.UserModel{DB: db}
-	userHandler := &UserInfo{UsersModelInterface: *userModel}
-
-	handler := SetupRoutes(userHandler)
+	userHandler := &UserInfo{UsersModel: userModel}
 
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
@@ -40,6 +37,7 @@ func main() {
 	srv := &http.Server{
 		Addr:      *addr,
 		TLSConfig: tlsConfig,
+		Handler:   SetupRoutes(userHandler),
 	}
 
 	log.Printf("Starting server on %s", *addr)

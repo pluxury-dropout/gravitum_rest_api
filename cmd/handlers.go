@@ -46,7 +46,7 @@ func (u *UserInfo) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Name, email and password cannot be blank", http.StatusBadRequest)
 		return
 	}
-	if err := u.UsersModelInterface.CreateUser(UserForm.Name, UserForm.Email, UserForm.Password); err != nil {
+	if err := u.UsersModel.CreateUser(UserForm.Name, UserForm.Email, UserForm.Password); err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
@@ -76,7 +76,7 @@ func (u *UserInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Nothing to update", http.StatusBadRequest)
 		return
 	}
-	if err := u.UsersModelInterface.UpdateUser(updateForm.ID, updateForm.NewName, updateForm.NewEmail); err != nil {
+	if err := u.UsersModel.UpdateUser(updateForm.ID, updateForm.NewName, updateForm.NewEmail); err != nil {
 		if err.Error() == "User not found" {
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
@@ -90,22 +90,24 @@ func (u *UserInfo) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedUser, err := u.UsersModelInterface.GetUser(updateForm.ID)
+	updatedUser, err := u.UsersModel.GetUser(updateForm.ID)
 	if err != nil {
 		http.Error(w, "Failed to fetch updated user data", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "User updated successfully",
-		"user": map[string]interface{}{
-			"id":         updatedUser.ID,
-			"name":       updatedUser.Name,
-			"email":      updatedUser.Email,
-			"updated_at": updatedUser.UpdatedAt,
-		},
-	})
+
+	json.NewEncoder(w).Encode(updatedUser)
+	// json.NewEncoder(w).Encode(map[string]interface{}{
+	// 	"message": "User updated successfully",
+	// 	"user": map[string]interface{}{
+	// 		"id":         updatedUser.ID,
+	// 		"name":       updatedUser.Name,
+	// 		"email":      updatedUser.Email,
+	// 		"updated_at": updatedUser.UpdatedAt,
+	// 	},
+	// })
 }
 
 func (u *UserInfo) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -125,7 +127,7 @@ func (u *UserInfo) GetUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid user ID format", http.StatusBadRequest)
 		return
 	}
-	user, err := u.UsersModelInterface.GetUser(id)
+	user, err := u.UsersModel.GetUser(id)
 	if err != nil {
 		if err.Error() == "User not found" {
 			http.Error(w, "User not found", http.StatusNotFound)
@@ -136,17 +138,17 @@ func (u *UserInfo) GetUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	userInfo := map[string]interface{}{
-		"id":         user.ID,
-		"name":       user.Name,
-		"email":      user.Email,
-		"created_at": user.CreatedAt,
-		"updated_at": user.UpdatedAt,
+	userForm := GetUserForm{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(userInfo); err != nil {
+	if err := json.NewEncoder(w).Encode(userForm); err != nil {
 		log.Printf("Failed to encode response: %v", err)
 	}
 
