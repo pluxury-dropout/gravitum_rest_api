@@ -1,8 +1,9 @@
-package main
+package internal
 
 import (
 	"encoding/json"
 	"errors"
+	"gravitum_rest_api/users_db"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/jackc/pgconn"
 )
+
+type UserInfo struct {
+	UsersModel users_db.UsersModelInterface
+}
 
 type CreateUserForm struct {
 	Name     string `json:"name"`

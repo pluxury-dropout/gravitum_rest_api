@@ -8,12 +8,10 @@ import (
 	"log"
 	"net/http"
 
+	"gravitum_rest_api/internal"
+
 	_ "github.com/jackc/pgx/stdlib"
 )
-
-type UserInfo struct {
-	UsersModel users_db.UsersModelInterface
-}
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
@@ -28,7 +26,8 @@ func main() {
 	defer db.Close()
 
 	userModel := &users_db.UserModel{DB: db}
-	userHandler := &UserInfo{UsersModel: userModel}
+	userHandler := &internal.UserInfo{UsersModel: userModel}
+	// userHandler := &handlers.UserInfo{UserModel: userModel}
 
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
@@ -37,7 +36,7 @@ func main() {
 	srv := &http.Server{
 		Addr:      *addr,
 		TLSConfig: tlsConfig,
-		Handler:   SetupRoutes(userHandler),
+		Handler:   internal.SetupRoutes(userHandler),
 	}
 
 	log.Printf("Starting server on %s", *addr)
