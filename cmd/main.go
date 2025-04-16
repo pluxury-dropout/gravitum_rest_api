@@ -27,7 +27,6 @@ func main() {
 
 	userModel := &users_db.UserModel{DB: db}
 	userHandler := &internal.UserInfo{UsersModel: userModel}
-	// userHandler := &handlers.UserInfo{UserModel: userModel}
 
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
