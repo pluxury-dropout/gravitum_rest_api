@@ -2,23 +2,40 @@ package mocks
 
 import (
 	"gravitum_rest_api/users_db"
+	"time"
 
 	"github.com/jackc/pgconn"
 )
 
 type UserModel struct {
+	User *users_db.User
+}
+
+type User struct {
+	ID             int       `json:"id"`
+	Name           string    `json:"name"`
+	Email          string    `json:"email"`
+	HashedPassword []byte    `json:"-"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func (m *UserModel) CreateUser(name, email, password string) error {
-	switch email {
-	case "test@test.com":
+
+	if email != "test@test.com" {
 		return &pgconn.PgError{
 			Code:    "23505",
 			Message: "Email already taken",
 		}
-	default:
-		return nil
+
 	}
+
+	m.User = &users_db.User{
+		ID:    1,
+		Name:  name,
+		Email: email,
+	}
+	return nil
 
 }
 
@@ -28,11 +45,7 @@ func (m *UserModel) GetUser(id int) (*users_db.User, error) {
 			Message: "User not found",
 		}
 	}
-	return &users_db.User{
-		ID:    1,
-		Name:  "test",
-		Email: "test@test.com",
-	}, nil
+	return m.User, nil
 }
 
 func (m *UserModel) UpdateUser(id int, new_name, new_email string) error {
@@ -46,11 +59,16 @@ func (m *UserModel) UpdateUser(id int, new_name, new_email string) error {
 			Message: "Email already taken",
 		}
 	}
+	m.User = &users_db.User{
+		ID:    id,
+		Name:  new_name,
+		Email: new_email,
+	}
 	return nil
 }
 
 type MockInterface interface {
 	CreateUser(name, email, password string) error
-	GetUser(id int) error
+	GetUser(id int) (*users_db.User, error)
 	UpdateUser(id int, new_name, new_email string) error
 }
