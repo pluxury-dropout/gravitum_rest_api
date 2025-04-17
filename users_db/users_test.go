@@ -9,7 +9,7 @@ import (
 func TestModelCreateUser(t *testing.T) {
 	model := &mocks.UserModel{}
 
-	err := model.CreateUser("Test", "test1@test.com", "pass123")
+	err := model.CreateUser("Test", "test@test.com", "pass123")
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}

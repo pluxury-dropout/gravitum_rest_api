@@ -1,10 +1,9 @@
 package mocks
 
 import (
+	"errors"
 	"gravitum_rest_api/users_db"
 	"time"
-
-	"github.com/jackc/pgconn"
 )
 
 type UserModel struct {
@@ -20,13 +19,17 @@ type User struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
+var ErrEmailAlreadyTaken = errors.New("email already taken")
+var ErrUserNotFound = errors.New("user not found")
+
 func (m *UserModel) CreateUser(name, email, password string) error {
 
 	if email != "test@test.com" {
-		return &pgconn.PgError{
-			Code:    "23505",
-			Message: "Email already taken",
-		}
+		return ErrEmailAlreadyTaken
+		// return &pgconn.PgError{
+		// 	Code:    "23505",
+		// 	Message: "Email already taken",
+		// }
 
 	}
 
@@ -41,23 +44,26 @@ func (m *UserModel) CreateUser(name, email, password string) error {
 
 func (m *UserModel) GetUser(id int) (*users_db.User, error) {
 	if id != 1 {
-		return nil, &pgconn.PgError{
-			Message: "User not found",
-		}
+		return nil, ErrUserNotFound
+		// return nil, &pgconn.PgError{
+		// 	Message: "User not found",
+		// }
 	}
 	return m.User, nil
 }
 
 func (m *UserModel) UpdateUser(id int, new_name, new_email string) error {
 	if id != 1 {
-		return &pgconn.PgError{
-			Message: "ID not found",
-		}
+		return ErrUserNotFound
+		// return &pgconn.PgError{
+		// 	Message: "ID not found",
+		// }
 	}
 	if new_email == "test@test.com" {
-		return &pgconn.PgError{
-			Message: "Email already taken",
-		}
+		return ErrEmailAlreadyTaken
+		// return &pgconn.PgError{
+		// 	Message: "Email already taken",
+		// }
 	}
 	m.User = &users_db.User{
 		ID:    id,
