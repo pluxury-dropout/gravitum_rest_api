@@ -120,7 +120,6 @@ func (u *UserInfo) GetUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	defer r.Body.Close()
 
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {

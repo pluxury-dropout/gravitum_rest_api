@@ -1,0 +1,28 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: gravitum_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: gravitum_users
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gravitum_api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DSN: postgres://postgres:admin@db:5432/gravitum_users?sslmode=disable
+
+volumes:
+  postgres_data:

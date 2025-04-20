@@ -1,25 +1,30 @@
 package main
 
 import (
-	"crypto/tls"
 	"database/sql"
-	"flag"
 	"gravitum_rest_api/users_db"
 	"log"
 	"net/http"
+	"os"
 
 	"gravitum_rest_api/internal"
 
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP network address")
-	dsn := flag.String("dsn", "postgres://postgres:admin@localhost:5432/gravitum_users", "postgresql source name")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf(".env not found: %v", err)
+	}
+	addr := os.Getenv("ADDR")
+	dsn := os.Getenv("DSN")
+	if dsn == "" {
+		log.Fatal("No DSN env")
+	}
 
-	flag.Parse()
-
-	db, err := openDB(*dsn)
+	db, err := openDB(dsn)
 	if err != nil {
 		log.Fatalf("Failed to open DB, %v", err)
 	}
@@ -28,18 +33,13 @@ func main() {
 	userModel := &users_db.UserModel{DB: db}
 	userHandler := &internal.UserInfo{UsersModel: userModel}
 
-	tlsConfig := &tls.Config{
-		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
-	}
-
 	srv := &http.Server{
-		Addr:      *addr,
-		TLSConfig: tlsConfig,
-		Handler:   internal.SetupRoutes(userHandler),
+		Addr:    addr,
+		Handler: internal.SetupRoutes(userHandler),
 	}
 
-	log.Printf("Starting server on %s", *addr)
-	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	log.Printf("Starting server on %s", addr)
+	err = srv.ListenAndServe()
 	log.Fatal(err)
 }
 
